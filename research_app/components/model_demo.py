@@ -34,8 +34,7 @@ class ModelDemo(ServeGradio):
 
     def build_model(self):
         import os
-
-        os.chdir("research_app/components/OFA")
+        os.system("cd research_app/components/OFA")
         from .OFA.gradio_app import general_interface
 
         return general_interface
