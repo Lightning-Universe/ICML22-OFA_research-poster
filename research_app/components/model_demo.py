@@ -7,8 +7,8 @@ from lightning.app.components.serve import ServeGradio
 class CustomBuildConfig(BuildConfig):
     def build_commands(self):
         return [
-            "cd research_app/components && git clone https://github.com/aniketmaurya/OFA.git && cd ../../",
-            "cd research_app/components && pip install -r requirements.txt && cd ../../"
+            "git clone https://github.com/aniketmaurya/OFA.git research_app/components/OFA",
+            "cd research_app/components/OFA && pip install -r requirements.txt && cd ../../../"
         ]
 
 
