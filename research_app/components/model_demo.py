@@ -8,7 +8,7 @@ class CustomBuildConfig(BuildConfig):
     def build_commands(self):
         return [
             "git clone https://github.com/aniketmaurya/OFA.git research_app/components/OFA",
-            "cd research_app/components/OFA && pip install -r requirements.txt && cd ../../../"
+            "cd research_app/components/OFA && pip install -r requirements.txt && cd ../../../",
         ]
 
 
@@ -18,18 +18,23 @@ class ModelDemo(ServeGradio):
     You need to define i. `build_model` and ii. `predict` method and Lightning `ServeGradio` component will
     automatically launch the Gradio interface.
     """
-    inputs = [gr.inputs.Image(type='pil'), "textbox"]
-    outputs = [gr.outputs.Image(type='numpy'), 'text']
+
+    inputs = [gr.inputs.Image(type="pil"), "textbox"]
+    outputs = [gr.outputs.Image(type="numpy"), "text"]
     enable_queue = True
-    examples = [['test.jpeg', 'what color is the left car?'],
-                ['test.jpeg', 'which region does the text " a grey car " describe?']]
+    examples = [
+        ["test.jpeg", "what color is the left car?"],
+        ["test.jpeg", 'which region does the text " a grey car " describe?'],
+    ]
 
     def __init__(self):
-        super().__init__(parallel=True, cloud_build_config=CustomBuildConfig(),
-            cloud_compute=L.CloudCompute("cpu-medium"))
+        super().__init__(
+            parallel=True, cloud_build_config=CustomBuildConfig(), cloud_compute=L.CloudCompute("cpu-medium")
+        )
 
     def build_model(self):
         import os
+
         os.chdir("research_app/components/OFA")
         from .OFA.gradio_app import general_interface
 

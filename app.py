@@ -47,7 +47,7 @@ class ResearchApp(L.LightningFlow):
 
     def __init__(
         self,
-        poster_dir: str=None,
+        poster_dir: str = None,
         paper: Optional[str] = None,
         blog: Optional[str] = None,
         github: Optional[str] = None,
