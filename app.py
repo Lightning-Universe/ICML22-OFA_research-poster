@@ -47,7 +47,7 @@ class ResearchApp(L.LightningFlow):
 
     def __init__(
         self,
-        poster_dir: str,
+        poster_dir: str=None,
         paper: Optional[str] = None,
         blog: Optional[str] = None,
         github: Optional[str] = None,
@@ -59,19 +59,22 @@ class ResearchApp(L.LightningFlow):
     ) -> None:
 
         super().__init__()
-        self.poster_dir = os.path.abspath(poster_dir)
+        self.poster_dir = os.path.abspath(poster_dir) if poster_dir else None
         self.paper = paper
         self.blog = blog
         self.training_logs = training_log_url
         self.notebook_path = notebook_path
         self.jupyter_lab = None
         self.model_demo = None
-        self.poster = Poster(resource_dir=self.poster_dir)
+        self.poster = None
         self.notebook_viewer = None
         self.tab_order = tab_order
 
         if github:
             clone_repo(github)
+
+        if poster_dir:
+            self.poster = Poster(resource_dir=self.poster_dir)
 
         if launch_jupyter_lab:
             self.jupyter_lab = JupyterLab()
@@ -89,7 +92,8 @@ class ResearchApp(L.LightningFlow):
     def run(self) -> None:
         if os.environ.get("TESTING_LAI"):
             print("⚡ Lightning Research App! ⚡")
-        self.poster.run()
+        if self.poster:
+            self.poster.run()
         if self.jupyter_lab:
             self.jupyter_lab.run()
         if self.model_demo:
@@ -98,7 +102,8 @@ class ResearchApp(L.LightningFlow):
     def configure_layout(self) -> List[Dict[str, str]]:
         tabs = []
 
-        tabs.append({"name": "Poster", "content": self.poster.url + "/poster.html"})
+        if self.poster:
+            tabs.append({"name": "Poster", "content": self.poster.url + "/poster.html"})
 
         if self.blog:
             tabs.append({"name": "Blog", "content": self.blog})
@@ -139,19 +144,11 @@ if __name__ == "__main__":
     paper = "https://arxiv.org/pdf/2103.00020"
     blog = "https://openai.com/blog/clip/"
     github = "https://github.com/openai/CLIP"
-    wandb = "https://wandb.ai/manan-goel/clip-lightning-image_retrieval/runs/1cedtohj"
-    tabs = ["Blog", "Paper", "Poster", "Notebook Viewer", "Training Logs", "Model Demo: Unsplash Image Search"]
 
     app = L.LightningApp(
         ResearchApp(
             poster_dir=poster_dir,
-            paper=paper,
-            blog=blog,
-            training_log_url=wandb,
-            github=github,
-            notebook_path="resources/Interacting_with_CLIP.ipynb",
             launch_gradio=True,
-            tab_order=tabs,
             launch_jupyter_lab=False,  # don't launch for public app, can expose to security vulnerability
         )
     )

@@ -1,16 +1,17 @@
-import logging
-
+from loguru import logger
+import os
 import gradio as gr
 from lightning.app.components.serve import ServeGradio
-from rich.logging import RichHandler
 
-from research_app.clip_demo import CLIPDemo
+from lightning.app import BuildConfig
 
-FORMAT = "%(message)s"
-logging.basicConfig(level="NOTSET", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()])
 
-logger = logging.getLogger(__name__)
-
+class CustomBuildConfig(BuildConfig):
+    def build_commands(self):
+        return [
+            "cd research_app/components && git clone https://github.com/aniketmaurya/OFA.git",
+            "cd research_app/components && pip install ."
+        ]
 
 class ModelDemo(ServeGradio):
     """Serve model with Gradio UI.
@@ -18,20 +19,22 @@ class ModelDemo(ServeGradio):
     You need to define i. `build_model` and ii. `predict` method and Lightning `ServeGradio` component will
     automatically launch the Gradio interface.
     """
-
-    inputs = gr.inputs.Textbox(default="Going into the space", label="Unsplash Image Search")
-    outputs = gr.outputs.HTML(label="Images from Unsplash")
+    inputs=[gr.inputs.Image(type='pil'), "textbox"]
+    outputs=[gr.outputs.Image(type='numpy'), 'text']
     enable_queue = True
-    examples = [["Cat reading a book"], ["Going into the space"]]
+    examples = [['test.jpeg', 'what color is the left car?'],
+                ['test.jpeg', 'which region does the text " a grey car " describe?']]
 
     def __init__(self):
         super().__init__(parallel=True)
+        self.cloud_build_config = CustomBuildConfig()
 
-    def build_model(self) -> CLIPDemo:
-        logger.info("loading model...")
-        clip = CLIPDemo()
-        logger.info("built model!")
-        return clip
-
-    def predict(self, query: str) -> str:
-        return self.model.predict(query)
+    def build_model(self):
+        import os
+        os.chdir("research_app/components/OFA")
+        from .OFA.gradio_app import general_interface
+        
+        return general_interface
+        
+    def predict(self, image, instruction):
+        return self.model(image, instruction)
