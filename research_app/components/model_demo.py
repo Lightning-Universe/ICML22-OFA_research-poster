@@ -26,8 +26,7 @@ class ModelDemo(ServeGradio):
                 ['test.jpeg', 'which region does the text " a grey car " describe?']]
 
     def __init__(self):
-        super().__init__(parallel=True)
-        self.cloud_build_config = CustomBuildConfig()
+        super().__init__(parallel=True, cloud_build_config=CustomBuildConfig())
 
     def build_model(self):
         import os
