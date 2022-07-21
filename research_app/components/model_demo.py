@@ -20,7 +20,7 @@ class ModelDemo(ServeGradio):
 
     inputs = [gr.inputs.Image(type="pil"), "textbox"]
     outputs = [gr.outputs.Image(type="numpy"), "text"]
-    enable_queue = True
+    enable_queue = False
     examples = [
         ["test.jpeg", "what color is the left car?"],
         ["test.jpeg", 'which region does the text " a grey car " describe?'],
@@ -40,4 +40,5 @@ class ModelDemo(ServeGradio):
         return general_interface
 
     def predict(self, image, instruction):
+        print(instruction)
         return self.model(image, instruction)
