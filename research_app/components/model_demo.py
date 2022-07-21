@@ -28,7 +28,7 @@ class ModelDemo(ServeGradio):
 
     def __init__(self):
         super().__init__(
-            parallel=True, cloud_build_config=CustomBuildConfig(), cloud_compute=L.CloudCompute("cpu-medium")
+            parallel=True, cloud_build_config=CustomBuildConfig(), cloud_compute=L.CloudCompute("cpu-medium"),
         )
 
     def build_model(self):
