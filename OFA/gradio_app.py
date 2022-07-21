@@ -21,13 +21,14 @@ use_cuda = False  # torch.cuda.is_available()
 use_fp16 = True if use_cuda else False
 
 # specify some options for evaluation
+CKPT_PATH = "checkpoints/ofa_large_clean.pt"
 parser = options.get_generation_parser()
-input_args = ["", "--task=refcoco", "--beam=10", "--path=checkpoints/ofa_large_clean.pt", "--bpe-dir=utils/BPE"]
+input_args = ["", "--task=refcoco", "--beam=10", f"--path={CKPT_PATH}", "--bpe-dir=utils/BPE"]
 args = options.parse_args_and_arch(parser, input_args)
 cfg = convert_namespace_to_omegaconf(args)
 
 # Download checkpoints
-if not os.path.exists("checkpoints/ofa_large_clean.pt"):
+if not os.path.exists(CKPT_PATH):
     os.system('wget https://ofa-silicon.oss-us-west-1.aliyuncs.com/checkpoints/ofa_large_clean.pt; '
               'mkdir -p checkpoints; mv ofa_large_clean.pt checkpoints/ofa_large_clean.pt')
 
