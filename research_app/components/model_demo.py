@@ -7,7 +7,7 @@ from lightning.app.components.serve import ServeGradio
 class CustomBuildConfig(BuildConfig):
     def build_commands(self):
         return [
-            "cd research_app/components/OFA && pip install -r requirements.txt && cd ../../../",
+            "cd OFA && pip install -r requirements.txt && cd ../",
         ]
 
 
@@ -34,7 +34,7 @@ class ModelDemo(ServeGradio):
     def build_model(self):
         import sys, os
         sys.path.append("OFA")
-        os.chdir("OFA")
+        os.system("export PYTHONPATH=OFA")
         from OFA.gradio_app import general_interface
 
         return general_interface
