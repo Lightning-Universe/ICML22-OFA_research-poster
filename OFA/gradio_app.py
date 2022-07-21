@@ -1,4 +1,5 @@
 import os
+import urllib
 
 import cv2
 import gradio as gr
@@ -29,8 +30,12 @@ cfg = convert_namespace_to_omegaconf(args)
 
 # Download checkpoints
 if not os.path.exists(CKPT_PATH):
-    os.system('wget https://ofa-silicon.oss-us-west-1.aliyuncs.com/checkpoints/ofa_large_clean.pt; '
-              'mkdir -p checkpoints; mv ofa_large_clean.pt checkpoints/ofa_large_clean.pt')
+    print("Downloading model, this might take some time!")
+    os.makedirs("checkpoints", exist_ok=True)
+    urllib.request.urlretrieve(
+        "https://ofa-silicon.oss-us-west-1.aliyuncs.com/checkpoints/ofa_large_clean.pt",
+        CKPT_PATH,
+    )
 
 # Load pretrained ckpt & config
 task = tasks.setup_task(cfg.task)
