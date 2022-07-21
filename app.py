@@ -118,7 +118,7 @@ class ResearchApp(L.LightningFlow):
             tabs.append({"name": "Training Logs", "content": self.training_logs})
 
         if self.model_demo:
-            tabs.append({"name": "Model Demo: Unsplash Image Search", "content": self.model_demo.url})
+            tabs.append({"name": "Model Demo", "content": self.model_demo.url})
 
         if self.jupyter_lab:
             tabs.append({"name": "Jupyter Lab", "content": self.jupyter_lab.url})
