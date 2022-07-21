@@ -28,11 +28,14 @@ class ModelDemo(ServeGradio):
 
     def __init__(self):
         super().__init__(
-            parallel=True, cloud_build_config=CustomBuildConfig(), cloud_compute=L.CloudCompute("cpu-medium"),
+            parallel=True,
+            cloud_build_config=CustomBuildConfig(),
+            cloud_compute=L.CloudCompute("cpu-medium", disk_size=20),
         )
 
     def build_model(self):
         import sys, os
+
         sys.path.append("OFA")
         os.system("export PYTHONPATH=OFA")
         from OFA.gradio_app import general_interface

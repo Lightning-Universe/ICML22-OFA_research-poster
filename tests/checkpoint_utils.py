@@ -72,21 +72,16 @@ def save_checkpoint(cfg: CheckpointConfig, trainer, epoch_itr, val_loss):
         end_of_epoch and not cfg.no_epoch_checkpoints and epoch % cfg.save_interval == 0
     )
     checkpoint_conds["checkpoint_{}_{}{}.pt".format(epoch, updates, suffix)] = (
-        not end_of_epoch
-        and cfg.save_interval_updates > 0
-        and updates % cfg.save_interval_updates == 0
+        not end_of_epoch and cfg.save_interval_updates > 0 and updates % cfg.save_interval_updates == 0
     )
     checkpoint_conds["checkpoint_best{}.pt".format(suffix)] = val_loss is not None and (
-        not hasattr(save_checkpoint, "best")
-        or is_better(val_loss, save_checkpoint.best)
+        not hasattr(save_checkpoint, "best") or is_better(val_loss, save_checkpoint.best)
     )
     if val_loss is not None and cfg.keep_best_checkpoints > 0:
         worst_best = getattr(save_checkpoint, "best", None)
         chkpts = checkpoint_paths(
             cfg.save_dir,
-            pattern=r"checkpoint\.best_{}_(\d+\.?\d*){}\.pt".format(
-                cfg.best_checkpoint_metric, suffix
-            ),
+            pattern=r"checkpoint\.best_{}_(\d+\.?\d*){}\.pt".format(cfg.best_checkpoint_metric, suffix),
         )
         if len(chkpts) > 0:
             p = chkpts[-1] if cfg.maximize_best_checkpoint_metric else chkpts[0]
@@ -96,38 +91,24 @@ def save_checkpoint(cfg: CheckpointConfig, trainer, epoch_itr, val_loss):
             rand_sfx = np.random.randint(0, cfg.keep_best_checkpoints)
 
         checkpoint_conds[
-            "checkpoint.best_{}_{:.3f}{}{}.pt".format(
-                cfg.best_checkpoint_metric,
-                val_loss,
-                rand_sfx,
-                suffix
-            )
+            "checkpoint.best_{}_{:.3f}{}{}.pt".format(cfg.best_checkpoint_metric, val_loss, rand_sfx, suffix)
         ] = worst_best is None or is_better(val_loss, worst_best)
-    checkpoint_conds[
-        "checkpoint_last{}.pt".format(suffix)
-    ] = not cfg.no_last_checkpoints
+    checkpoint_conds["checkpoint_last{}.pt".format(suffix)] = not cfg.no_last_checkpoints
 
     extra_state = {"train_iterator": epoch_itr.state_dict(), "val_loss": val_loss}
     if hasattr(save_checkpoint, "best"):
         extra_state.update({"best": save_checkpoint.best})
 
-    checkpoints = [
-        os.path.join(cfg.save_dir, fn) for fn, cond in checkpoint_conds.items() if cond
-    ]
+    checkpoints = [os.path.join(cfg.save_dir, fn) for fn, cond in checkpoint_conds.items() if cond]
     if len(checkpoints) > 0:
         trainer.save_checkpoint(checkpoints[0], extra_state)
         for cp in checkpoints[1:]:
             if cfg.write_checkpoints_asynchronously:
                 # TODO[ioPath]: Need to implement a delayed asynchronous
                 # file copying/moving feature.
-                logger.warning(
-                    f"ioPath is not copying {checkpoints[0]} to {cp} "
-                    "since async write mode is on."
-                )
+                logger.warning(f"ioPath is not copying {checkpoints[0]} to {cp} " "since async write mode is on.")
             else:
-                assert PathManager.copy(
-                    checkpoints[0], cp, overwrite=True
-                ), f"Failed to copy {checkpoints[0]} to {cp}"
+                assert PathManager.copy(checkpoints[0], cp, overwrite=True), f"Failed to copy {checkpoints[0]} to {cp}"
 
         write_timer.stop()
         logger.info(
@@ -139,20 +120,14 @@ def save_checkpoint(cfg: CheckpointConfig, trainer, epoch_itr, val_loss):
     if not end_of_epoch and cfg.keep_interval_updates > 0:
         # remove old checkpoints; checkpoints are sorted in descending order
         if cfg.keep_interval_updates_pattern == -1:
-            checkpoints = checkpoint_paths(
-                cfg.save_dir, pattern=r"checkpoint_\d+_(\d+){}\.pt".format(suffix)
-            )
+            checkpoints = checkpoint_paths(cfg.save_dir, pattern=r"checkpoint_\d+_(\d+){}\.pt".format(suffix))
         else:
             checkpoints = checkpoint_paths(
                 cfg.save_dir,
                 pattern=r"checkpoint_\d+_(\d+){}\.pt".format(suffix),
                 keep_match=True,
             )
-            checkpoints = [
-                x[0]
-                for x in checkpoints
-                if x[1] % cfg.keep_interval_updates_pattern != 0
-            ]
+            checkpoints = [x[0] for x in checkpoints if x[1] % cfg.keep_interval_updates_pattern != 0]
 
         for old_chk in checkpoints[cfg.keep_interval_updates :]:
             if os.path.lexists(old_chk):
@@ -162,9 +137,7 @@ def save_checkpoint(cfg: CheckpointConfig, trainer, epoch_itr, val_loss):
 
     if cfg.keep_last_epochs > 0:
         # remove old epoch checkpoints; checkpoints are sorted in descending order
-        checkpoints = checkpoint_paths(
-            cfg.save_dir, pattern=r"checkpoint(\d+){}\.pt".format(suffix)
-        )
+        checkpoints = checkpoint_paths(cfg.save_dir, pattern=r"checkpoint(\d+){}\.pt".format(suffix))
         for old_chk in checkpoints[cfg.keep_last_epochs :]:
             if os.path.lexists(old_chk):
                 os.remove(old_chk)
@@ -175,9 +148,7 @@ def save_checkpoint(cfg: CheckpointConfig, trainer, epoch_itr, val_loss):
         # only keep the best N checkpoints according to validation metric
         checkpoints = checkpoint_paths(
             cfg.save_dir,
-            pattern=r"checkpoint\.best_{}_(\d+\.?\d*){}\.pt".format(
-                cfg.best_checkpoint_metric, suffix
-            ),
+            pattern=r"checkpoint\.best_{}_(\d+\.?\d*){}\.pt".format(cfg.best_checkpoint_metric, suffix),
         )
         if not cfg.maximize_best_checkpoint_metric:
             checkpoints = checkpoints[::-1]
@@ -211,12 +182,8 @@ def load_checkpoint(cfg: CheckpointConfig, trainer, **passthrough_args):
         )
 
     suffix = trainer.checkpoint_suffix
-    if (
-        cfg.restore_file == "checkpoint_last.pt"
-    ):  # default value of restore_file is 'checkpoint_last.pt'
-        checkpoint_path = os.path.join(
-            cfg.save_dir, "checkpoint_last{}.pt".format(suffix)
-        )
+    if cfg.restore_file == "checkpoint_last.pt":  # default value of restore_file is 'checkpoint_last.pt'
+        checkpoint_path = os.path.join(cfg.save_dir, "checkpoint_last{}.pt".format(suffix))
         first_launch = not PathManager.exists(checkpoint_path)
         if cfg.finetune_from_model is not None and first_launch:
             # if there is no last checkpoint to restore, start the finetune from pretrained model
@@ -232,9 +199,7 @@ def load_checkpoint(cfg: CheckpointConfig, trainer, **passthrough_args):
                     "optimizer, lr scheduler, meters, dataloader will be reset"
                 )
             else:
-                raise ValueError(
-                    f"--funetune-from-model {cfg.finetune_from_model} does not exist"
-                )
+                raise ValueError(f"--funetune-from-model {cfg.finetune_from_model} does not exist")
     elif suffix is not None:
         checkpoint_path = cfg.restore_file.replace(".pt", suffix + ".pt")
     else:
@@ -242,8 +207,7 @@ def load_checkpoint(cfg: CheckpointConfig, trainer, **passthrough_args):
 
     if cfg.restore_file != "checkpoint_last.pt" and cfg.finetune_from_model:
         raise ValueError(
-            "--finetune-from-model and --restore-file (non-default value) "
-            "can not be specified together: " + str(cfg)
+            "--finetune-from-model and --restore-file (non-default value) " "can not be specified together: " + str(cfg)
         )
 
     extra_state = trainer.load_checkpoint(
@@ -254,39 +218,30 @@ def load_checkpoint(cfg: CheckpointConfig, trainer, **passthrough_args):
         reset_meters=reset_meters,
     )
 
-    if (
-        extra_state is not None
-        and "best" in extra_state
-        and not reset_optimizer
-        and not reset_meters
-    ):
+    if extra_state is not None and "best" in extra_state and not reset_optimizer and not reset_meters:
         save_checkpoint.best = extra_state["best"]
 
     if extra_state is not None and not reset_dataloader:
         # restore iterator from checkpoint
         itr_state = extra_state["train_iterator"]
-        epoch_itr = trainer.get_train_iterator(
-            epoch=itr_state["epoch"], load_dataset=True, **passthrough_args
-        )
+        epoch_itr = trainer.get_train_iterator(epoch=itr_state["epoch"], load_dataset=True, **passthrough_args)
         epoch_itr.load_state_dict(itr_state)
-        _n = itr_state['iterations_in_epoch']
+        _n = itr_state["iterations_in_epoch"]
         offset = sum(len(_) for _ in epoch_itr.batch_sampler[:_n])
         epoch_itr.dataset.dataset._seek(offset=offset)
         true_num = int(math.ceil(len(epoch_itr.dataset) / 8)) * 8
         another_offset = ((epoch_itr.epoch - 1) * true_num + offset) // 8
-        if hasattr(epoch_itr.dataset, 'pure_text_dataset'):
+        if hasattr(epoch_itr.dataset, "pure_text_dataset"):
             text_offset = (2 * another_offset) % len(epoch_itr.dataset.pure_text_dataset)
             epoch_itr.dataset.pure_text_dataset._seek(offset=text_offset)
-        if hasattr(epoch_itr.dataset, 'pure_image_dataset'):
+        if hasattr(epoch_itr.dataset, "pure_image_dataset"):
             image_offset = another_offset % len(epoch_itr.dataset.pure_image_dataset)
             epoch_itr.dataset.pure_image_dataset._seek(offset=image_offset)
-        if hasattr(epoch_itr.dataset, 'detection_dataset'):
+        if hasattr(epoch_itr.dataset, "detection_dataset"):
             detection_offset = another_offset % len(epoch_itr.dataset.detection_dataset)
             epoch_itr.dataset.detection_dataset._seek(offset=detection_offset)
     else:
-        epoch_itr = trainer.get_train_iterator(
-            epoch=1, load_dataset=True, **passthrough_args
-        )
+        epoch_itr = trainer.get_train_iterator(epoch=1, load_dataset=True, **passthrough_args)
 
     trainer.lr_step(epoch_itr.epoch)
 
@@ -372,9 +327,7 @@ def load_model_ensemble(
             were used during model training
         task (fairseq.tasks.FairseqTask, optional): task to use for loading
     """
-    assert not (
-        strict and num_shards > 1
-    ), "Cannot load state dict with strict=True and checkpoint shards > 1"
+    assert not (strict and num_shards > 1), "Cannot load state dict with strict=True and checkpoint shards > 1"
     ensemble, args, _task = load_model_ensemble_and_task(
         filenames,
         arg_overrides,
@@ -387,9 +340,7 @@ def load_model_ensemble(
     return ensemble, args
 
 
-def get_maybe_sharded_checkpoint_filename(
-    filename: str, suffix: str, shard_idx: int, num_shards: int
-) -> str:
+def get_maybe_sharded_checkpoint_filename(filename: str, suffix: str, shard_idx: int, num_shards: int) -> str:
     orig_filename = filename
     filename = filename.replace(".pt", suffix + ".pt")
     fsdp_filename = filename[:-3] + f"-shard{shard_idx}.pt"
@@ -415,9 +366,7 @@ def load_model_ensemble_and_task(
 
     from fairseq import tasks
 
-    assert not (
-        strict and num_shards > 1
-    ), "Cannot load state dict with strict=True and checkpoint shards > 1"
+    assert not (strict and num_shards > 1), "Cannot load state dict with strict=True and checkpoint shards > 1"
     ensemble = []
     cfg = None
     for filename in filenames:
@@ -426,9 +375,7 @@ def load_model_ensemble_and_task(
         assert num_shards > 0
         st = time.time()
         for shard_idx in range(num_shards):
-            filename = get_maybe_sharded_checkpoint_filename(
-                orig_filename, suffix, shard_idx, num_shards
-            )
+            filename = get_maybe_sharded_checkpoint_filename(orig_filename, suffix, shard_idx, num_shards)
 
             if not PathManager.exists(filename):
                 raise IOError("Model file not found: {}".format(filename))
@@ -439,9 +386,7 @@ def load_model_ensemble_and_task(
             elif "cfg" in state and state["cfg"] is not None:
                 cfg = state["cfg"]
             else:
-                raise RuntimeError(
-                    f"Neither args nor cfg exist in state keys = {state.keys()}"
-                )
+                raise RuntimeError(f"Neither args nor cfg exist in state keys = {state.keys()}")
 
             if task is None:
                 task = tasks.setup_task(cfg.task)
@@ -455,8 +400,7 @@ def load_model_ensemble_and_task(
                 # check FSDP import before the code goes too far
                 if not has_FSDP:
                     raise ImportError(
-                        "Cannot find FullyShardedDataParallel. "
-                        "Please install fairscale with: pip install fairscale"
+                        "Cannot find FullyShardedDataParallel. " "Please install fairscale with: pip install fairscale"
                     )
                 if shard_idx == num_shards - 1:
                     consolidated_model_state = FSDP.consolidate_shard_weights(
@@ -464,23 +408,17 @@ def load_model_ensemble_and_task(
                         shard_metadata=model_shard_state["shard_metadata"],
                     )
                     model = task.build_model(cfg.model)
-                    model.load_state_dict(
-                        consolidated_model_state, strict=strict, model_cfg=cfg.model
-                    )
+                    model.load_state_dict(consolidated_model_state, strict=strict, model_cfg=cfg.model)
             else:
                 # model parallel checkpoint or unsharded checkpoint
                 model = task.build_model(cfg.model)
-                model.load_state_dict(
-                    state["model"], strict=strict, model_cfg=cfg.model
-                )
+                model.load_state_dict(state["model"], strict=strict, model_cfg=cfg.model)
 
             # reset state so it gets loaded for the next model in ensemble
             state = None
             if shard_idx % 10 == 0 and shard_idx > 0:
                 elapsed = time.time() - st
-                logger.info(
-                    f"Loaded {shard_idx} shards in {elapsed:.2f}s, {elapsed / (shard_idx+1):.2f}s/shard"
-                )
+                logger.info(f"Loaded {shard_idx} shards in {elapsed:.2f}s, {elapsed / (shard_idx+1):.2f}s/shard")
 
         # build model for ensemble
         ensemble.append(model)
@@ -546,9 +484,7 @@ def _upgrade_state_dict(state):
 
     # add optimizer_history
     if "optimizer_history" not in state:
-        state["optimizer_history"] = [
-            {"criterion_name": "CrossEntropyCriterion", "best_loss": state["best_loss"]}
-        ]
+        state["optimizer_history"] = [{"criterion_name": "CrossEntropyCriterion", "best_loss": state["best_loss"]}]
         state["last_optimizer_state"] = state["optimizer"]
         del state["optimizer"]
         del state["best_loss"]
@@ -572,9 +508,7 @@ def _upgrade_state_dict(state):
         state["optimizer_history"][-1]["optimizer_name"] = "FairseqNAG"
     # move best_loss into lr_scheduler_state
     if "lr_scheduler_state" not in state["optimizer_history"][-1]:
-        state["optimizer_history"][-1]["lr_scheduler_state"] = {
-            "best": state["optimizer_history"][-1]["best_loss"]
-        }
+        state["optimizer_history"][-1]["lr_scheduler_state"] = {"best": state["optimizer_history"][-1]["best_loss"]}
         del state["optimizer_history"][-1]["best_loss"]
     # keep track of number of updates
     if "num_updates" not in state["optimizer_history"][-1]:
@@ -617,22 +551,16 @@ def _upgrade_state_dict(state):
             state["args"].stop_min_lr = state["args"].min_lr
             del state["args"].min_lr
         # binary_cross_entropy / kd_binary_cross_entropy => wav2vec criterion
-        if (
-            hasattr(state["args"], "criterion")
-            and state["args"].criterion in [
-                "binary_cross_entropy",
-                "kd_binary_cross_entropy",
-            ]
-        ):
+        if hasattr(state["args"], "criterion") and state["args"].criterion in [
+            "binary_cross_entropy",
+            "kd_binary_cross_entropy",
+        ]:
             state["args"].criterion = "wav2vec"
         # remove log_keys if it's None (criteria will supply a default value of [])
         if hasattr(state["args"], "log_keys") and state["args"].log_keys is None:
             delattr(state["args"], "log_keys")
         # speech_pretraining => audio pretraining
-        if (
-            hasattr(state["args"], "task")
-            and state["args"].task == "speech_pretraining"
-        ):
+        if hasattr(state["args"], "task") and state["args"].task == "speech_pretraining":
             state["args"].task = "audio_pretraining"
         # audio_cpc => wav2vec
         if hasattr(state["args"], "arch") and state["args"].arch == "audio_cpc":
@@ -641,11 +569,7 @@ def _upgrade_state_dict(state):
         if hasattr(state["args"], "lr") and isinstance(state["args"].lr, float):
             state["args"].lr = [state["args"].lr]
         # convert task data arg to a string instead of List[string]
-        if (
-            hasattr(state["args"], "data")
-            and isinstance(state["args"].data, list)
-            and len(state["args"].data) > 0
-        ):
+        if hasattr(state["args"], "data") and isinstance(state["args"].data, list) and len(state["args"].data) > 0:
             state["args"].data = state["args"].data[0]
         # remove keys in state["args"] related to teacher-student learning
         for key in [
@@ -675,14 +599,10 @@ def _upgrade_state_dict(state):
                 "model" in cfg
                 and "w2v_args" in cfg.model
                 and cfg.model.w2v_args is not None
-                and (
-                    hasattr(cfg.model.w2v_args, "task") or "task" in cfg.model.w2v_args
-                )
+                and (hasattr(cfg.model.w2v_args, "task") or "task" in cfg.model.w2v_args)
                 and hasattr(cfg.model.w2v_args.task, "eval_wer_config")
                 and cfg.model.w2v_args.task.eval_wer_config is not None
-                and isinstance(
-                    cfg.model.w2v_args.task.eval_wer_config.print_alignment, bool
-                )
+                and isinstance(cfg.model.w2v_args.task.eval_wer_config.print_alignment, bool)
             ):
                 cfg.model.w2v_args.task.eval_wer_config.print_alignment = "hard"
 
@@ -702,11 +622,7 @@ def prune_state_dict(state_dict, model_cfg: Optional[DictConfig]):
     """
     arch = None
     if model_cfg is not None:
-        arch = (
-            model_cfg._name
-            if isinstance(model_cfg, DictConfig)
-            else getattr(model_cfg, "arch", None)
-        )
+        arch = model_cfg._name if isinstance(model_cfg, DictConfig) else getattr(model_cfg, "arch", None)
 
     if not model_cfg or arch is None or arch == "ptt_transformer":
         # args should not be none, but don't crash if it is.
@@ -724,9 +640,7 @@ def prune_state_dict(state_dict, model_cfg: Optional[DictConfig]):
     )
 
     def create_pruning_pass(layers_to_keep, layer_name):
-        keep_layers = sorted(
-            int(layer_string) for layer_string in layers_to_keep.split(",")
-        )
+        keep_layers = sorted(int(layer_string) for layer_string in layers_to_keep.split(","))
         mapping_dict = {}
         for i in range(len(keep_layers)):
             mapping_dict[str(keep_layers[i])] = str(i)
@@ -753,13 +667,11 @@ def prune_state_dict(state_dict, model_cfg: Optional[DictConfig]):
         original_layer_number = match.group(1)
         # figure out which mapping dict to replace from
         for pruning_pass in pruning_passes:
-            if original_layer_number in pruning_pass["mapping_dict"] and pruning_pass[
-                "substitution_regex"
-            ].search(layer_name):
+            if original_layer_number in pruning_pass["mapping_dict"] and pruning_pass["substitution_regex"].search(
+                layer_name
+            ):
                 new_layer_number = pruning_pass["mapping_dict"][original_layer_number]
-                substitution_match = pruning_pass["substitution_regex"].search(
-                    layer_name
-                )
+                substitution_match = pruning_pass["substitution_regex"].search(layer_name)
                 new_state_key = (
                     layer_name[: substitution_match.start(1)]
                     + new_layer_number
@@ -782,9 +694,7 @@ def prune_state_dict(state_dict, model_cfg: Optional[DictConfig]):
     return new_state_dict
 
 
-def load_pretrained_component_from_model(
-    component: Union[FairseqEncoder, FairseqDecoder], checkpoint: str
-):
+def load_pretrained_component_from_model(component: Union[FairseqEncoder, FairseqDecoder], checkpoint: str):
     """
     Load a pretrained FairseqEncoder or FairseqDecoder from checkpoint into the
     provided `component` object. If state_dict fails to load, there may be a
@@ -821,9 +731,7 @@ def verify_checkpoint_directory(save_dir: str) -> None:
         with open(temp_file_path, "w"):
             pass
     except OSError as e:
-        logger.warning(
-            "Unable to access checkpoint save directory: {}".format(save_dir)
-        )
+        logger.warning("Unable to access checkpoint save directory: {}".format(save_dir))
         raise e
     else:
         os.remove(temp_file_path)
@@ -844,16 +752,14 @@ def load_ema_from_checkpoint(fpath):
     params_dict = collections.OrderedDict()
     new_state = None
 
-    with PathManager.open(fpath, 'rb') as f:
+    with PathManager.open(fpath, "rb") as f:
         new_state = torch.load(
             f,
-            map_location=(
-                lambda s, _: torch.serialization.default_restore_location(s, 'cpu')
-            ),
+            map_location=(lambda s, _: torch.serialization.default_restore_location(s, "cpu")),
         )
 
         # EMA model is stored in a separate "extra state"
-        model_params = new_state['extra_state']['ema']
+        model_params = new_state["extra_state"]["ema"]
 
         for key in list(model_params.keys()):
             p = model_params[key]
@@ -871,5 +777,5 @@ def load_ema_from_checkpoint(fpath):
                 "ema model weights, is this model trained with EMA?"
             )
 
-    new_state['model'] = params_dict
+    new_state["model"] = params_dict
     return new_state
