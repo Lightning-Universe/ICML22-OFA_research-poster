@@ -7,10 +7,6 @@ import torch
 from PIL import Image
 from torchvision import transforms
 
-os.chdir("research_app/components/OFA")
-if not os.path.exists("checkpoints/ofa_large_clean.pt"):
-    os.system('wget https://ofa-silicon.oss-us-west-1.aliyuncs.com/checkpoints/ofa_large_clean.pt; '
-              'mkdir -p checkpoints; mv ofa_large_clean.pt checkpoints/ofa_large_clean.pt')
 from fairseq import checkpoint_utils
 from fairseq import options, tasks, utils
 from fairseq.dataclass.utils import convert_namespace_to_omegaconf
@@ -29,6 +25,11 @@ parser = options.get_generation_parser()
 input_args = ["", "--task=refcoco", "--beam=10", "--path=checkpoints/ofa_large_clean.pt", "--bpe-dir=utils/BPE"]
 args = options.parse_args_and_arch(parser, input_args)
 cfg = convert_namespace_to_omegaconf(args)
+
+# Download checkpoints
+if not os.path.exists("checkpoints/ofa_large_clean.pt"):
+    os.system('wget https://ofa-silicon.oss-us-west-1.aliyuncs.com/checkpoints/ofa_large_clean.pt; '
+              'mkdir -p checkpoints; mv ofa_large_clean.pt checkpoints/ofa_large_clean.pt')
 
 # Load pretrained ckpt & config
 task = tasks.setup_task(cfg.task)
