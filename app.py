@@ -141,7 +141,7 @@ class ResearchApp(L.LightningFlow):
 
 if __name__ == "__main__":
     poster_dir = "resources"
-    paper = "https://arxiv.org/abs/2202.03052"
+    paper = "https://ar5iv.labs.arxiv.org/html/2202.03052"
     github = "https://github.com/OFA-Sys/OFA"
     notebook_path = "resources/OFA.ipynb"
     tabs = ["Poster", "model demo", "Notebook viewer", "Paper"]
