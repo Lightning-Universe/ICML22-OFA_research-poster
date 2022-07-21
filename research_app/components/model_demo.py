@@ -32,7 +32,7 @@ class ModelDemo(ServeGradio):
         )
 
     def build_model(self):
-        from .OFA.gradio_app import general_interface
+        from research_app.components.gradio_app import general_interface
 
         return general_interface
 
