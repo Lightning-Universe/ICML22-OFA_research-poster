@@ -19,12 +19,7 @@ manually install the app as mentioned below.
 
 `lightning install app lightning/icml22-ofa`
 
-#### Use GitHub template
-
-Click on the "Use this template" button at the top, name your app repo, and GitHub will create a fork of this app to
-your account.
-
-> ![use-template.png](./assets/use-template.png)
+#### Use GitHub
 
 You can clone the forked app repo and follow the steps below to install the app.
 
@@ -33,6 +28,10 @@ git clone https://github.com/lightning-AI/LAI-icml22-ofa-research-poster.git
 cd LAI-icml22-ofa-research-poster
 pip install -r requirements.txt
 pip install -e .
+
+# install OFA dependencies
+cd OFA
+pip install -r requirements.txt
 ```
 
 Once you have installed the app, you can goto the `LAI-icml22-ofa-research-poster` folder and
