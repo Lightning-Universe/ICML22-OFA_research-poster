@@ -3,7 +3,7 @@ import os
 from typing import Dict, List, Optional
 
 import lightning as L
-from lightning.app import frontend
+from lightning.app.frontend.web import StaticWebFrontend
 from poster import Poster
 from rich import print
 from rich.logging import RichHandler
@@ -24,7 +24,7 @@ class StaticNotebookViewer(L.LightningFlow):
         self.serve_dir = notebook_to_html(notebook_path)
 
     def configure_layout(self):
-        return frontend.web.StaticWebFrontend(serve_dir=self.serve_dir)
+        return StaticWebFrontend(serve_dir=self.serve_dir)
 
 
 class ResearchApp(L.LightningFlow):
@@ -46,16 +46,16 @@ class ResearchApp(L.LightningFlow):
     """
 
     def __init__(
-        self,
-        poster_dir: str = None,
-        paper: Optional[str] = None,
-        blog: Optional[str] = None,
-        github: Optional[str] = None,
-        notebook_path: Optional[str] = None,
-        training_log_url: Optional[str] = None,
-        launch_jupyter_lab: bool = False,
-        launch_gradio: bool = False,
-        tab_order: Optional[List[str]] = None,
+            self,
+            poster_dir: str = None,
+            paper: Optional[str] = None,
+            blog: Optional[str] = None,
+            github: Optional[str] = None,
+            notebook_path: Optional[str] = None,
+            training_log_url: Optional[str] = None,
+            launch_jupyter_lab: bool = False,
+            launch_gradio: bool = False,
+            tab_order: Optional[List[str]] = None,
     ) -> None:
 
         super().__init__()
@@ -141,13 +141,16 @@ class ResearchApp(L.LightningFlow):
 
 if __name__ == "__main__":
     poster_dir = "resources"
-    paper = "https://arxiv.org/pdf/2103.00020"
-    blog = "https://openai.com/blog/clip/"
-    github = "https://github.com/openai/CLIP"
+    paper = "https://arxiv.org/abs/2202.03052"
+    github = "https://github.com/OFA-Sys/OFA"
+    notebook_path = "resources/OFA.ipynb"
+    tabs = ["Poster", "model demo", "Notebook viewer", "Paper"]
 
     app = L.LightningApp(
         ResearchApp(
+            paper=paper,
             poster_dir=poster_dir,
+            notebook_path=notebook_path,
             launch_gradio=True,
             launch_jupyter_lab=False,  # don't launch for public app, can expose to security vulnerability
         )
