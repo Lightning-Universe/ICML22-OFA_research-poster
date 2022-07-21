@@ -23,7 +23,7 @@ use_fp16 = True if use_cuda else False
 # specify some options for evaluation
 CKPT_PATH = "checkpoints/ofa_large_clean.pt"
 parser = options.get_generation_parser()
-input_args = ["", "--task=refcoco", "--beam=10", f"--path={CKPT_PATH}", "--bpe-dir=utils/BPE"]
+input_args = ["", "--task=refcoco", "--beam=10", f"--path={CKPT_PATH}", "--bpe-dir=OFA/utils/BPE"]
 args = options.parse_args_and_arch(parser, input_args)
 cfg = convert_namespace_to_omegaconf(args)
 
