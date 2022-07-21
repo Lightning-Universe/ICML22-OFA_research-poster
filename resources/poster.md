@@ -27,7 +27,7 @@ simple sequence-to-sequence learning framework. For more information, please ref
 Architectures, Tasks, and Modalities Through a Simple Sequence-to-Sequence Learning Framework.
 
 
-<img src="https://github.com/OFA-Sys/OFA/blob/main/examples/open_vqa.png">
+<img src="https://raw.githubusercontent.com/OFA-Sys/OFA/main/examples/open_vqa.png">
 
 --split--
 
