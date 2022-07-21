@@ -369,7 +369,6 @@ cython_debug/
 *.pt
 *.pth
 *.ckpt
-data/
 lightning_logs/
 wandb/
 .idea/
@@ -377,7 +376,6 @@ flagged/
 .python-version
 
 lightning_logs
-data/
 .shared
 *.ckpt
 .shared
