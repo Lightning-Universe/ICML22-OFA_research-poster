@@ -1,15 +1,6 @@
 # Created by https://www.toptal.com/developers/gitignore/api/python,pycharm,macos,images
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,pycharm,macos,images
 
-### Images ###
-# JPEG
-*.jpg
-*.jpeg
-*.jpe
-*.jif
-*.jfif
-*.jfi
-
 # JPEG 2000
 *.jp2
 *.j2k
