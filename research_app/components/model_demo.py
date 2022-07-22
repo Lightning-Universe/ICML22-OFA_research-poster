@@ -20,7 +20,7 @@ class ModelDemo(ServeGradio):
 
     inputs = [gr.inputs.Image(type="pil"), "textbox"]
     outputs = [gr.outputs.Image(type="numpy"), "text"]
-    enable_queue = False
+    enable_queue = True
     examples = [
         ["test.jpeg", "what color is the left car?"],
         ["test.jpeg", 'which region does the text " a grey car " describe?'],
