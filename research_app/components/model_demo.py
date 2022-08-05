@@ -19,7 +19,10 @@ class ModelDemo(ServeGradio):
     automatically launch the Gradio interface.
     """
 
-    inputs = [gr.inputs.Image(type="pil", label="Upload image"), "textbox"]
+    inputs = [
+        gr.inputs.Image(type="pil", label="Upload image"),
+        gr.inputs.Textbox(lines=2, label="Question"),
+    ]
     outputs = [gr.outputs.Image(type="numpy"), "text"]
     enable_queue = True
     examples = [
