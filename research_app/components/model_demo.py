@@ -1,4 +1,3 @@
-from cProfile import label
 import gradio as gr
 import lightning as L
 from lightning.app import BuildConfig
@@ -9,6 +8,8 @@ class CustomBuildConfig(BuildConfig):
     def build_commands(self):
         return [
             "cd OFA && pip install -r requirements.txt && cd ../",
+            "git clone https://github.com/pytorch/fairseq.git && cd fairseq && pip install "
+            "--use-feature=in-tree-build ./ && cd .. "
         ]
 
 
