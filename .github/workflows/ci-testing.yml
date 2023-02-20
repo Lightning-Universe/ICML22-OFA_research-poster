@@ -35,13 +35,16 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install OFA
+        working-directory: OFA
+        run: pip install -r requirements.txt
+
       - name: Install dependencies
         run: |
           pip --version
           pip install -r requirements.txt -r tests/requirements.txt -U -q \
             -f https://download.pytorch.org/whl/cpu/torch_stable.html
           pip list
-        shell: bash
 
       - name: Tests
         run: coverage run --source research_app -m pytest research_app tests -v

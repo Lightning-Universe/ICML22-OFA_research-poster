@@ -1,3 +1,1 @@
 research-app @ https://github.com/Lightning-Universe/Research-poster/archive/refs/heads/main.zip
-
--r OFA/requirements.txt
