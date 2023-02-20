@@ -4,7 +4,7 @@ protobuf==3.20.1
 rich==12.4.1
 torch==1.11.0
 torchvision==0.12.0
-gradio==2.9.4
+gradio==3.19.1
 nbconvert==6.5.0
 jupyterlite==0.1.0b7
 lightning
