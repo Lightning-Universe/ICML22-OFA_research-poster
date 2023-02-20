@@ -28,6 +28,7 @@ jobs:
       - run: |
           sudo apt install -q -y tree
           tree -h -L 2
+          cat OFA/requirements.txt
         if: runner.os == 'Linux'
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
