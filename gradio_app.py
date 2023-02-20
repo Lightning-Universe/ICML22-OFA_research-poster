@@ -14,7 +14,7 @@ from OFA.fairseq.dataclass.utils import convert_namespace_to_omegaconf
 from OFA.tasks.mm_tasks.refcoco import RefcocoTask
 
 # Register
-tasks.register_task('refcoco', RefcocoTask)
+tasks.register_task("refcoco", RefcocoTask)
 
 # turn on cuda if GPU is available
 use_cuda = False  # torch.cuda.is_available()
@@ -39,10 +39,7 @@ if not os.path.exists(CKPT_PATH):
 
 # Load pretrained ckpt & config
 task = tasks.setup_task(cfg.task)
-models, cfg = checkpoint_utils.load_model_ensemble(
-    utils.split_paths(cfg.common_eval.path),
-    task=task
-)
+models, cfg = checkpoint_utils.load_model_ensemble(utils.split_paths(cfg.common_eval.path), task=task)
 
 # Move models to GPU
 for model in models:
@@ -59,12 +56,14 @@ generator = task.build_generator(models, cfg.generation)
 mean = [0.5, 0.5, 0.5]
 std = [0.5, 0.5, 0.5]
 
-patch_resize_transform = transforms.Compose([
-    lambda image: image.convert("RGB"),
-    transforms.Resize((task.cfg.patch_image_size, task.cfg.patch_image_size), interpolation=Image.BICUBIC),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=mean, std=std),
-])
+patch_resize_transform = transforms.Compose(
+    [
+        lambda image: image.convert("RGB"),
+        transforms.Resize((task.cfg.patch_image_size, task.cfg.patch_image_size), interpolation=Image.BICUBIC),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=mean, std=std),
+    ]
+)
 
 # Text preprocess
 bos_item = torch.LongTensor([task.src_dict.bos()])
@@ -85,35 +84,31 @@ def decode_fn(x, tgt_dict, bpe, generator, tokenizer=None):
     bin_result = []
     img_result = []
     for token in x.strip().split():
-        if token.startswith('<bin_'):
+        if token.startswith("<bin_"):
             bin_result.append(token)
-        elif token.startswith('<code_'):
+        elif token.startswith("<code_"):
             img_result.append(token)
         else:
             if bpe is not None:
-                token = bpe.decode('{}'.format(token))
+                token = bpe.decode(f"{token}")
             if tokenizer is not None:
                 token = tokenizer.decode(token)
-            if token.startswith(' ') or len(token_result) == 0:
+            if token.startswith(" ") or len(token_result) == 0:
                 token_result.append(token.strip())
             else:
                 token_result[-1] += token
 
-    return ' '.join(token_result), ' '.join(bin_result), ' '.join(img_result)
+    return " ".join(token_result), " ".join(bin_result), " ".join(img_result)
 
 
 def coord2bin(coords, w_resize_ratio, h_resize_ratio):
     coord_list = [float(coord) for coord in coords.strip().split()]
     bin_list = []
-    bin_list += [
-        "<bin_{}>".format(int((coord_list[0] * w_resize_ratio / task.cfg.max_image_size * (task.cfg.num_bins - 1))))]
-    bin_list += [
-        "<bin_{}>".format(int((coord_list[1] * h_resize_ratio / task.cfg.max_image_size * (task.cfg.num_bins - 1))))]
-    bin_list += [
-        "<bin_{}>".format(int((coord_list[2] * w_resize_ratio / task.cfg.max_image_size * (task.cfg.num_bins - 1))))]
-    bin_list += [
-        "<bin_{}>".format(int((coord_list[3] * h_resize_ratio / task.cfg.max_image_size * (task.cfg.num_bins - 1))))]
-    return ' '.join(bin_list)
+    bin_list += [f"<bin_{int((coord_list[0] * w_resize_ratio / task.cfg.max_image_size * (task.cfg.num_bins - 1)))}>"]
+    bin_list += [f"<bin_{int((coord_list[1] * h_resize_ratio / task.cfg.max_image_size * (task.cfg.num_bins - 1)))}>"]
+    bin_list += [f"<bin_{int((coord_list[2] * w_resize_ratio / task.cfg.max_image_size * (task.cfg.num_bins - 1)))}>"]
+    bin_list += [f"<bin_{int((coord_list[3] * h_resize_ratio / task.cfg.max_image_size * (task.cfg.num_bins - 1)))}>"]
+    return " ".join(bin_list)
 
 
 def bin2coord(bins, w_resize_ratio, h_resize_ratio):
@@ -128,16 +123,11 @@ def bin2coord(bins, w_resize_ratio, h_resize_ratio):
 
 def encode_text(text, length=None, append_bos=False, append_eos=False):
     line = [
-        task.bpe.encode(' {}'.format(word.strip()))
-        if not word.startswith('<code_') and not word.startswith('<bin_') else word
+        task.bpe.encode(f" {word.strip()}") if not word.startswith("<code_") and not word.startswith("<bin_") else word
         for word in text.strip().split()
     ]
-    line = ' '.join(line)
-    s = task.tgt_dict.encode_line(
-        line=line,
-        add_if_not_exist=False,
-        append_eos=False
-    ).long()
+    line = " ".join(line)
+    s = task.tgt_dict.encode_line(line=line, add_if_not_exist=False, append_eos=False).long()
     if length is not None:
         s = s[:length]
     if append_bos:
@@ -151,16 +141,16 @@ def construct_sample(image: Image, instruction: str):
     patch_image = patch_resize_transform(image).unsqueeze(0)
     patch_mask = torch.tensor([True])
 
-    instruction = encode_text(' {}'.format(instruction.lower().strip()), append_bos=True, append_eos=True).unsqueeze(0)
+    instruction = encode_text(f" {instruction.lower().strip()}", append_bos=True, append_eos=True).unsqueeze(0)
     instruction_length = torch.LongTensor([s.ne(pad_idx).long().sum() for s in instruction])
     sample = {
-        "id": np.array(['42']),
+        "id": np.array(["42"]),
         "net_input": {
             "src_tokens": instruction,
             "src_lengths": instruction_length,
             "patch_images": patch_image,
             "patch_masks": patch_mask,
-        }
+        },
     }
     return sample
 
@@ -186,35 +176,44 @@ def general_interface(image, instruction):
     print(tokens)
     print(bins)
     print(imgs)
-    if bins.strip() != '':
+    if bins.strip() != "":
         w, h = image.size
         w_resize_ratio = task.cfg.patch_image_size / w
         h_resize_ratio = task.cfg.patch_image_size / h
         img = np.asarray(image)
         coord_list = bin2coord(bins, w_resize_ratio, h_resize_ratio)
         cv2.rectangle(
-            img,
-            (int(coord_list[0]), int(coord_list[1])),
-            (int(coord_list[2]), int(coord_list[3])),
-            (0, 255, 0),
-            3
+            img, (int(coord_list[0]), int(coord_list[1])), (int(coord_list[2]), int(coord_list[3])), (0, 255, 0), 3
         )
         return img, None
     else:
         return None, tokens
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     title = "OFA-Generic_Interface"
-    description = "Gradio Demo for OFA-Generic_Interface. " \
-                  "You can use different instructions to perform various tasks (i.e., image captioning, visual grounding, VQA and grounded captioning) with just one model. " \
-                  "Upload your own image or click any one of the examples, and write a proper instruction. " \
-                  "Then click \"Submit\" and wait for the result. "
-    article = "<p style='text-align: center'><a href='https://github.com/OFA-Sys/OFA' target='_blank'>OFA Github " \
-              "Repo</a></p> "
-    examples = [['test.jpeg', 'what color is the left car?'],
-                ['test.jpeg', 'which region does the text " a grey car " describe?']]
-    io = gr.Interface(fn=general_interface, inputs=[gr.inputs.Image(type='pil'), "textbox"],
-        outputs=[gr.outputs.Image(type='numpy'), 'text'],
-        title=title, description=description, article=article, examples=examples, cache_examples=False)
+    description = (
+        "Gradio Demo for OFA-Generic_Interface. "
+        "You can use different instructions to perform various tasks (i.e., image captioning, visual grounding, VQA and grounded captioning) with just one model. "
+        "Upload your own image or click any one of the examples, and write a proper instruction. "
+        'Then click "Submit" and wait for the result. '
+    )
+    article = (
+        "<p style='text-align: center'><a href='https://github.com/OFA-Sys/OFA' target='_blank'>OFA Github "
+        "Repo</a></p> "
+    )
+    examples = [
+        ["test.jpeg", "what color is the left car?"],
+        ["test.jpeg", 'which region does the text " a grey car " describe?'],
+    ]
+    io = gr.Interface(
+        fn=general_interface,
+        inputs=[gr.inputs.Image(type="pil"), "textbox"],
+        outputs=[gr.outputs.Image(type="numpy"), "text"],
+        title=title,
+        description=description,
+        article=article,
+        examples=examples,
+        cache_examples=False,
+    )
     io.launch(debug=True)
