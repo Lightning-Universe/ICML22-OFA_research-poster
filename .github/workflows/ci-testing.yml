@@ -43,10 +43,7 @@ jobs:
         shell: bash
 
       - name: Tests
-        run: |
-          coverage run --source research_app -m pytest research_app tests -v
+        run: coverage run --source research_app -m pytest research_app tests -v
 
       - name: Statistics
-        if: success()
-        run: |
-          coverage report
+        run: coverage report
