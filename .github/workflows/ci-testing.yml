@@ -22,7 +22,7 @@ jobs:
     timeout-minutes: 35
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: recursive
       - run: |
@@ -31,7 +31,7 @@ jobs:
           cat OFA/requirements.txt
         if: runner.os == 'Linux'
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
