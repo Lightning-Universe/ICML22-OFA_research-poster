@@ -204,8 +204,8 @@ if __name__ == "__main__":
         "Repo</a></p> "
     )
     examples = [
-        ["test.jpeg", "what color is the left car?"],
-        ["test.jpeg", 'which region does the text " a grey car " describe?'],
+        ["resources/test.jpeg", "what color is the left car?"],
+        ["resources/test.jpeg", 'which region does the text " a grey car " describe?'],
     ]
     io = gr.Interface(
         fn=general_interface,
