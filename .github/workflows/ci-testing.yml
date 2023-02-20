@@ -47,7 +47,4 @@ jobs:
           pip list
 
       - name: Tests
-        run: coverage run -m pytest tests -v
-
-      - name: Statistics
-        run: coverage report
+        run: python -m pytest tests -v
