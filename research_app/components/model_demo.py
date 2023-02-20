@@ -41,9 +41,8 @@ class ModelDemo(ServeGradio):
     def build_model(self):
         import sys, os
 
-        sys.path.append("OFA")
         os.system("export PYTHONPATH=OFA")
-        from OFA.gradio_app import general_interface
+        from ofa_poster.gradio_app import general_interface
 
         return general_interface
 
