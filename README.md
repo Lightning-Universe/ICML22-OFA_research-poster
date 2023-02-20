@@ -6,7 +6,6 @@ This app is a research poster demo of [OFA paper](https://arxiv.org/abs/2202.030
 you can upload an image and do prediction based on text query. To create a research poster for your work use the Lightning Research
 Template app.
 
-
 ## Getting started
 
 To create a Research Poster you can install this app via the [Lightning CLI](https://lightning.ai/lightning-docs/) or

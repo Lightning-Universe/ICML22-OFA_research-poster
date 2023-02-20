@@ -26,7 +26,6 @@ tasks (e.g., image generation, visual grounding, image captioning, image classif
 simple sequence-to-sequence learning framework. For more information, please refer to the paper: OFA: Unifying
 Architectures, Tasks, and Modalities Through a Simple Sequence-to-Sequence Learning Framework.
 
-
 <img src="https://raw.githubusercontent.com/OFA-Sys/OFA/main/examples/open_vqa.png">
 
 --split--
@@ -37,9 +36,11 @@ Architectures, Tasks, and Modalities Through a Simple Sequence-to-Sequence Learn
 
 !!! abstract "Key Features"
 
-    - **Easy to use-** Lightning apps follow the Lightning philosophy- easy to read, modular, intuitive, pythonic and highly composable interface that allows you to focus on what's important for you, and automate the rest.
-    - **Easy to scale**- Lightning provides a common experience locally and in the cloud. The Lightning.ai cloud platform abstracts the infrastructure, so you can run your apps at any scale. The modular and composable framework allows for simpler testing and debugging.
-    - **Leverage the power of the community-** Lightning.ai offers a variety of apps for any use case you can use as is or build upon. By following the best MLOps practices provided through the apps and documentation you can deploy state-of-the-art ML applications in days, not months.
+```
+- **Easy to use-** Lightning apps follow the Lightning philosophy- easy to read, modular, intuitive, pythonic and highly composable interface that allows you to focus on what's important for you, and automate the rest.
+- **Easy to scale**- Lightning provides a common experience locally and in the cloud. The Lightning.ai cloud platform abstracts the infrastructure, so you can run your apps at any scale. The modular and composable framework allows for simpler testing and debugging.
+- **Leverage the power of the community-** Lightning.ai offers a variety of apps for any use case you can use as is or build upon. By following the best MLOps practices provided through the apps and documentation you can deploy state-of-the-art ML applications in days, not months.
+```
 
 ```mermaid
 graph LR
@@ -70,7 +71,6 @@ app = L.LightningApp(
         launch_jupyter_lab=False,  # don't launch for public app, can expose to security vulnerability
     )
 )
-
 ```
 
 ### Citation

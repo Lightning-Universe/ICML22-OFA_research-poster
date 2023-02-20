@@ -9,7 +9,7 @@ class CustomBuildConfig(BuildConfig):
         return [
             "cd OFA && pip install -r requirements.txt && cd ../",
             "git clone https://github.com/pytorch/fairseq.git && cd fairseq && pip install "
-            "--use-feature=in-tree-build ./ && cd .. "
+            "--use-feature=in-tree-build ./ && cd .. ",
         ]
 
 
@@ -39,7 +39,7 @@ class ModelDemo(ServeGradio):
         )
 
     def build_model(self):
-        import sys, os
+        import os
 
         os.system("export PYTHONPATH=OFA")
         from ofa_poster.gradio_app import general_interface
