@@ -197,15 +197,15 @@ if __name__ == "__main__":
         " You can use different instructions to perform various tasks (i.e., image captioning, visual grounding,"
         " VQA and grounded captioning) with just one model."
         " Upload your own image or click any one of the examples, and write a proper instruction."
-        ' Then click "Submit" and wait for the result.'
+        ' Then click "Submit" and wait for the result. '
     )
     article = (
         "<p style='text-align: center'><a href='https://github.com/OFA-Sys/OFA' target='_blank'>OFA Github "
         "Repo</a></p> "
     )
     examples = [
-        ["test.jpeg", "what color is the left car?"],
-        ["test.jpeg", 'which region does the text " a grey car " describe?'],
+        ["resources/test.jpeg", "what color is the left car?"],
+        ["resources/test.jpeg", 'which region does the text " a grey car " describe?'],
     ]
     io = gr.Interface(
         fn=general_interface,

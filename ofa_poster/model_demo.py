@@ -27,8 +27,8 @@ class ModelDemo(ServeGradio):
     outputs = [gr.outputs.Image(type="numpy"), "text"]
     enable_queue = True
     examples = [
-        ["test.jpeg", "what color is the left car?"],
-        ["test.jpeg", 'which region does the text " a grey car " describe?'],
+        ["resources/test.jpeg", "what color is the left car?"],
+        ["resources/test.jpeg", 'which region does the text " a grey car " describe?'],
     ]
 
     def __init__(self):
